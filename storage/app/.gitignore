@@ -1,0 +1,11 @@
+*
+!default/
+!default/posts_images
+!default/posts_images/articulo_1.jpg
+!default/posts_images/articulo_2.jpg
+!default/posts_images/articulo_3.jpg
+!default/posts_images/articulo_4.jpg
+!default/posts_images/articulo_5.jpg
+!default/departamentos_municipios.csv
+!public/
+!.gitignore
