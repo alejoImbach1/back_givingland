@@ -12,15 +12,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $posts = Post::with('images')->get();
+        return response()->json($posts);
     }
 
     /**
@@ -28,38 +21,43 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Post::create([$request->except('images')]);
+        return response()->json(['message' => 'se creó la publicación'],201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(int $postId)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Post $post)
-    {
-        //
+        $post = Post::with('images')->find($postId);
+        if(!$post){
+            return response()->json(['error' => 'la publicación no se encuentra'],404);
+        }
+        return response()->json($post);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, int $postId)
     {
-        //
+        $post = Post::find($postId);
+        if(!$post){
+            return response()->json(['error' => 'la publicación no se encuentra'],404);
+        }
+        $post->update($request->all());
+        return response()->json(['message' => 'se actualizó la publicación']);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy(int $postId)
     {
-        //
+        if(!Post::destroy($postId)){
+            return response()->json(['error' => 'la publicación no se encuentra'],404);
+        };
+        return response()->json(['message' => 'Se eliminó la publicación']);
     }
 }
