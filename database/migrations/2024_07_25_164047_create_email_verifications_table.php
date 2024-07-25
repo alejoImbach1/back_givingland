@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_verification', function (Blueprint $table) {
+        Schema::create('email_verifications', function (Blueprint $table) {
             $table->id();
             $table->string('email');
-            $table->string('token',64)->unique();
-            $table->timestamp('created_at')->nullable();
+            $table->string('code',64);
+            $table->string('token',64)->unique()->nullable();
             $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
         });
     }
 
