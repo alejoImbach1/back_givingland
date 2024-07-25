@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Profile;
@@ -22,6 +23,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 // Route::post('/register', [AuthController::class, 'register'])->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::post('/email-verification-token', [RegisterController::class, 'generateToken']);
 
 // Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
