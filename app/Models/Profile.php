@@ -20,8 +20,9 @@ class Profile extends Model
 
     public function getImageUrl(): string
     {
-        return ($this->google_avatar) ? $this->google_avatar: asset('storage/users_profile_images/' . $this->image->url);
+        return ($this->google_avatar) ? $this->google_avatar : env('app_url') . '/storage/users_profile_images/' . $this->image->url;
     }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -22,12 +22,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::apiSingleton('profile',ProfileController::class)->only('update');
 });
-// Route::post('/register', [AuthController::class, 'register'])->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/email-code', [RegisterController::class, 'generateCode']);
+Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/verify-email-code',[RegisterController::class,'verifyCode']);
+// Route::post('/email-code', [RegisterController::class, 'generateCode']);
+
+// Route::post('/verify-email-code',[RegisterController::class,'verifyCode']);
 
 // Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -36,15 +37,16 @@ Route::apiResource('profiles', ProfileController::class)->only('show')->paramete
 Route::apiResource('posts',PostController::class);
 
 
-Route::get('/profile-image/{profile}',function ($userId){
+Route::get('/profile-image/{profile}',function ($profileId){
     // $path = env('app_url') . ;
-    $profile = Profile::find($userId);
-    $url = ($profile->google_avatar) ? $profile->google_avatar: env('app_url') . '/storage/users_profile_images/' . $profile->image->url;
-
-    return response()->json($url);
+    $profile = Profile::find($profileId);
+    if(!$profile){
+        return response(null,404);
+    }
+    return response()->json($profile->getImageUrl());
 });
 
 Route::get('/p',function(){
-    return response(null,201);
+    return response()->json('hello');
 });
 

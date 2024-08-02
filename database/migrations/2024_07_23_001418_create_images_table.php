@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Storage::copy('default/user-solid.svg', 'public/users_profile_images/default.svg');
+        Storage::copy('default/user-solid.svg', 'public/users_profile_images/default.svg');
 
         Schema::create('images', function (Blueprint $table) {
             $table->id();
