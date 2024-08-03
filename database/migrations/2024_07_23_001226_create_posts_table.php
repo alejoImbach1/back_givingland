@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('name',100);
-            $table->enum('purpose',['d','i']);
+            $table->enum('purpose',['donación','intercambio']);
             $table->string('expected_item',100)->nullable();
             $table->string('description');
             $table->boolean('reported')->default(0);

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -15,13 +16,22 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return response()->json(User::included()->find($request->user()->id));
     });
     
     Route::get('/logout',[AuthController::class,'logout']);
     
     Route::apiSingleton('profile',ProfileController::class)->only('update');
+
+    Route::post('toggle-favorite',function (Request $request){
+        $request->user()->favorites()->toggle($request->post_id);
+    });
 });
+
+// Route::get('/user/{user}',function ($userId){
+//     return response()->json(User::included()->find($userId));
+// });
+
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/register', [AuthController::class, 'register']);

@@ -12,7 +12,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('images')->get();
+        $posts = Post::included()->get();
         return response()->json($posts);
     }
 

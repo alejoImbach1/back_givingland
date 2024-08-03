@@ -31,9 +31,8 @@ class ImageSeeder extends Seeder
             $limit = rand(1, 5);
             for ($i = 0; $i < $limit; $i++) {
                 $defaultFileName = $defaultFilesNames[array_rand($defaultFilesNames)];
-                $image = Image::create(['url' => "image_".Str::uuid().".jpg"]);
-                $post->images()->save($image);
-                Storage::copy('default/posts_images/' . $defaultFileName, 'public/posts_images/'. $post->user->username .'/'. $image->url);
+                $image = $post->images()->create(['url' => 'posts_images/' . $post->user->username . '/image_' .Str::uuid().'.jpg']);
+                Storage::copy('default/posts_images/' . $defaultFileName, 'public/'. $image->url);
             }
         }
     }
