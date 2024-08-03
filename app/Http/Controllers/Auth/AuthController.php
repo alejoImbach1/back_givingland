@@ -8,6 +8,7 @@ use App\Services\Utilily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -34,7 +35,7 @@ class AuthController extends Controller
 
         $validator['password'] = Hash::make($validator['password']);
 
-        $validator = array_merge(['username' => Utilily::generateUsername($validator['name'])],$validator);
+        $validator = array_merge(['username' => Utilily::generateUsername($validator['name'])], $validator);
 
         $user = User::create($validator);
 
@@ -46,6 +47,21 @@ class AuthController extends Controller
 
         return response()->json(compact('auth_token'));
         // return response()->json($validator);
+    }
+
+    public function googleLogin(Request $request)
+    {
+        $user = User::where('email', $request->email)->get()->first();
+        if (!$user) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+            $user->update(['username' => Utilily::generateUsername($user->name)]);
+            $user->profile()->create(['google_avatar' => $request->avatar]);
+        }
+        $auth_token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json(compact('auth_token'));
     }
 
     public function logout(Request $request)
