@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -33,9 +34,13 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $username)
     {
-        //
+        $user = User::included()->where('username',$username)->first();
+        if(!$user){
+            return response(null,404);
+        }
+        return response()->json($user);
     }
 
     /**

@@ -11,14 +11,13 @@ class ProfileController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $userId)
+    public function show(int $profileId)
     {
-        $user = User::find($userId);
-        if(!$user){
+        $profile = Profile::included()->find($profileId);
+        if(!$profile){
             return response()->json(['error','perfil no encontrado'],404);
         }
         // Profile::with()
-        $profile = $user->profile;
         return response()->json($profile);
     }
 

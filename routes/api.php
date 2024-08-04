@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -44,13 +47,17 @@ Route::post('/google-login', [AuthController::class, 'googleLogin']);
 
 // Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::apiResource('profiles', ProfileController::class)->only('show')->parameter('profiles','user');
+Route::apiResource('profiles', ProfileController::class)->only('show');
+
+Route::apiResource('locations',LocationController::class)->only('index');
+
+Route::apiResource('categories',CategoryController::class)->only('index');
 
 Route::apiResource('posts',PostController::class);
 
+Route::apiResource('users',UserController::class)->except('index');
 
 Route::get('/profile-image/{profile}',function ($profileId){
-    // $path = env('app_url') . ;
     $profile = Profile::find($profileId);
     if(!$profile){
         return response(null,404);

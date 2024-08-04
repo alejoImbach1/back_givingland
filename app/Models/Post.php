@@ -25,16 +25,13 @@ class Post extends Model
         'category_id',
     ];
 
-    protected $allowIncluded = ['images', 'location','user']; //las posibles Querys que se pueden realizar
+    protected $allowIncluded = ['images', 'location' , 'category']; //las posibles Querys que se pueden realizar
 
     protected $allowSort = ['id', 'created_at'];
 
-    //Relaciones
+    protected $allowFilter = ['user_id'];
 
-    public function getPurpose(): string
-    {
-        return ($this->purpose == 'd') ? 'donación' : 'intercambio';
-    }
+    //Relaciones
 
     public function category(): BelongsTo
     {
@@ -86,11 +83,8 @@ class Post extends Model
         if(empty($this->allowIncluded)||empty(request('included'))){// validamos que la lista blanca y la variable included enviada a travez de HTTP no este en vacia.
             return;
         }
-
         
         $relations = explode(',', request('included')); //['posts','relation2']//recuperamos el valor de la variable included y separa sus valores por una coma
-
-       // return $relations;
 
         $allowIncluded = collect($this->allowIncluded); //colocamos en una colecion lo que tiene $allowIncluded en este caso = ['posts','posts.user']
 
@@ -103,8 +97,6 @@ class Post extends Model
         $query->with($relations); //se ejecuta el query con lo que tiene $relations en ultimas es el valor en la url de included
 
         //http://api.codersfree1.test/v1/categories?included=posts
-
-
     }
 
     public function scopeSort(Builder $query)
@@ -130,5 +122,27 @@ class Post extends Model
             }
         }
         //http://api.codersfree1.test/v1/categories?sort=name
+    }
+
+    public function scopeFilter(Builder $query)
+    {
+        
+        if (empty($this->allowFilter) || empty(request('filter'))) {
+            return;
+        }
+
+        $filters = request('filter');
+        $allowFilter = collect($this->allowFilter);
+
+        foreach ($filters as $filter => $value) {
+
+            if ($allowFilter->contains($filter)) {
+
+                $query->where($filter, 'LIKE', '%' . $value . '%');//nos retorna todos los registros que conincidad, asi sea en una porcion del texto
+            }
+        }
+
+        //http://api.codersfree1.test/v1/categories?filter[name]=depo
+        //http://api.codersfree1.test/v1/categories?filter[name]=posts&filter[id]=2
     }
 }

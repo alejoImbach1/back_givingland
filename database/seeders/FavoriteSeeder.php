@@ -17,7 +17,7 @@ class FavoriteSeeder extends Seeder
         $users = User::all();
         foreach ($users as $user) {
             $postIds = Post::where('user_id','!=',$user->id)->pluck('id');
-            $user->favorites()->attach($postIds->random(rand(5,15))->toArray());
+            $user->favorites()->attach($postIds->random(rand(1,count($postIds)))->toArray());
         }
     }
 }

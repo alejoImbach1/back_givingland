@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('description');
             $table->boolean('reported')->default(0);
             $table->boolean('banned')->default(0);
-            $table->integer('user_post_index',false,true)->nullable();
+            // $table->integer('user_post_index',false,true)->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('location_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
