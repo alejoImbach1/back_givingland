@@ -58,7 +58,8 @@ class AuthController extends Controller
                 'email' => $request->email,
             ]);
             $user->update(['username' => Utilily::generateUsername($user->name)]);
-            $user->profile()->create(['google_avatar' => $request->avatar]);
+            $profile = $user->profile()->create(['google_avatar' => true]);
+            $profile->image()->create(['url' => $request->avatar]);
         }
         $auth_token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(compact('auth_token'));

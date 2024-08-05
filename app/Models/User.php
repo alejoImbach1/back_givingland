@@ -113,8 +113,6 @@ class User extends Authenticatable
             }
         }
         $query->with($relations); //se ejecuta el query con lo que tiene $relations en ultimas es el valor en la url de included
-
-        //http://api.codersfree1.test/v1/categories?included=posts
     }
 
 }

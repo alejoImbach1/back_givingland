@@ -23,10 +23,16 @@ class Post extends Model
         // 'user_post_index',
         'location_id',
         'category_id',
-        'user'
     ];
 
-    protected $allowIncluded = ['images', 'location' , 'category' , 'user']; //las posibles Querys que se pueden realizar
+    protected $allowIncluded = [
+        'images',
+        'location',
+        'category',
+        'user',
+        'user.profile',
+        'user.profile.image'
+    ]; //las posibles Querys que se pueden realizar
 
     protected $allowSort = ['id', 'created_at'];
 

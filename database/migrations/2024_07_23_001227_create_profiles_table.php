@@ -16,7 +16,7 @@ return new class extends Migration
         
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
-            $table->string('google_avatar')->nullable();
+            $table->boolean('google_avatar')->default(false);
             $table->foreignId('user_id')->nullable()->unique()->constrained()->onDelete('cascade');
             $table->timestamps();
         });

@@ -15,7 +15,7 @@ class PostController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:sanctum', only: ['store','update' ,'destroy']),
+            new Middleware('auth:sanctum', except: ['show','index']),
         ];
     }
 
@@ -133,5 +133,16 @@ class PostController extends Controller implements HasMiddleware
         }
         $post->delete();
         return response()->json(['message' => 'Se eliminó la publicación']);
+    }
+
+    //para front laravel
+    public function storeNewImages(Request $request){
+        $post = $request->user()->posts()->find($request->post_id);
+        $images = $request->images;
+        foreach ($images as $image) {
+            $path = 'posts_images/' . $request->user()->username . '/image_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public', $path);
+            $post->images()->create(['url' => $path]);
+        }
     }
 }

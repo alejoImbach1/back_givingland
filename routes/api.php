@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SocialMediaController;
 use App\Http\Controllers\UserController;
 use App\Models\Profile;
 use App\Models\User;
@@ -24,7 +25,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::get('/logout',[AuthController::class,'logout']);
     
-    Route::apiSingleton('profile',ProfileController::class)->only('update');
+    Route::apiSingleton('profile',ProfileController::class)->creatable()->only('update','store');
 
     Route::post('toggle-favorite',function (Request $request){
         $request->user()->favorites()->toggle($request->post_id);
@@ -49,23 +50,19 @@ Route::post('/google-login', [AuthController::class, 'googleLogin']);
 
 Route::apiResource('profiles', ProfileController::class)->only('show');
 
+Route::apiResource('social-media', SocialMediaController::class)->only('index');
+
+Route::apiResource('posts',PostController::class);
+
 Route::apiResource('locations',LocationController::class)->only('index');
 
 Route::apiResource('categories',CategoryController::class)->only('index');
 
-Route::apiResource('posts',PostController::class);
+Route::post('post/new-images',[PostController::class,'storeNewImages']);
 
 Route::apiResource('users',UserController::class)->except('index');
 
-Route::get('/profile-image/{profile}',function ($profileId){
-    $profile = Profile::find($profileId);
-    if(!$profile){
-        return response(null,404);
-    }
-    return response()->json($profile->getImageUrl());
-});
-
-Route::get('/p',function(){
-    return response()->json('hello');
+Route::post('/p',function(Request $request){
+    return response()->json($request->image);
 });
 
