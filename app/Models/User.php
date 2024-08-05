@@ -53,6 +53,7 @@ class User extends Authenticatable
         'profile.image',
         'profile.socialMedia.image',
         'profile.contactInformation',
+        'posts',
         'posts.images',
         'posts.location',
         'posts.category',

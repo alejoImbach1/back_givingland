@@ -63,7 +63,7 @@ class PostController extends Controller implements HasMiddleware
      */
     public function show(string $id)
     {
-        $post = Post::with('images')->find($id);
+        $post = Post::included()->find($id);
         if (!$post) {
             return response()->json(['error' => 'la publicación no se encuentra'], 404);
         }
