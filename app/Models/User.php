@@ -48,7 +48,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    protected $allowIncluded = ['profile','profile.image','favorites', 'posts']; //las posibles Querys que se pueden realizar
+    protected $allowIncluded = [
+        'profile',
+        'profile.image',
+        'profile.socialMedia.image',
+        'profile.contactInformation',
+        'posts.images',
+        'posts.location',
+        'posts.category',
+        'favorites',
+    ]; //las posibles Querys que se pueden realizar
 
     //relaciones
 

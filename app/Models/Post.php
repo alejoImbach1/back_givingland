@@ -25,11 +25,11 @@ class Post extends Model
         'category_id',
     ];
 
-    protected $allowIncluded = ['images', 'location' , 'category']; //las posibles Querys que se pueden realizar
+    protected $allowIncluded = ['images', 'location' , 'category' , 'user']; //las posibles Querys que se pueden realizar
 
     protected $allowSort = ['id', 'created_at'];
 
-    protected $allowFilter = ['user_id'];
+    protected $allowFilter = ['name','category_id','location_id'];
 
     //Relaciones
 
@@ -126,7 +126,6 @@ class Post extends Model
 
     public function scopeFilter(Builder $query)
     {
-        
         if (empty($this->allowFilter) || empty(request('filter'))) {
             return;
         }
@@ -141,8 +140,27 @@ class Post extends Model
                 $query->where($filter, 'LIKE', '%' . $value . '%');//nos retorna todos los registros que conincidad, asi sea en una porcion del texto
             }
         }
+    }
 
-        //http://api.codersfree1.test/v1/categories?filter[name]=depo
-        //http://api.codersfree1.test/v1/categories?filter[name]=posts&filter[id]=2
+    public function scopeOnly(Builder $query)
+    {
+        if (empty(request('only'))) {
+            return;
+        }
+
+        $only = request('only');
+        
+        $query->where('user_id', $only);
+    }
+
+    public function scopeExcept(Builder $query)
+    {
+        if (empty(request('except'))) {
+            return;
+        }
+
+        $except = request('except');
+        
+        $query->where('user_id', '!=', $except);
     }
 }

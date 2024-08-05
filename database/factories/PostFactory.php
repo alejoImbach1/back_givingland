@@ -18,16 +18,15 @@ class PostFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    // public function configure(): static
-    // {
-    //     return $this->afterMaking(function (Post $post) {
-    //         if ($post->purpose == 'i') {
-    //             $post->expected_item = fake()->words(rand(1,5),true);
-    //         }
-    //         $post->user_post_index = count($post->user->posts);
-    //         $post->save();
-    //     });
-    // }
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Post $post) {
+            if ($post->purpose == 'intercambio') {
+                $post->expected_item = fake()->words(rand(1,5),true);
+            }
+            $post->save();
+        });
+    }
     /**
      * Define the model's default state.
      *

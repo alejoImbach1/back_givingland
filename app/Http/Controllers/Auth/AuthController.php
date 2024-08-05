@@ -41,7 +41,7 @@ class AuthController extends Controller
 
         $profile = $user->profile()->create();
 
-        $profile->image()->create(['url' => 'default.svg']);
+        $profile->image()->create(['url' => 'users_profile_images/default.svg']);
 
         $auth_token = $user->createToken('auth_token')->plainTextToken;
 

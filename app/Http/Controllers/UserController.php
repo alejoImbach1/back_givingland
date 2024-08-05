@@ -34,9 +34,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $username)
+    public function show(string $userIndex)
     {
-        $user = User::included()->where('username',$username)->first();
+        $user = User::included()->where('id',$userIndex)->orWhere('username',$userIndex)->first();
         if(!$user){
             return response(null,404);
         }
