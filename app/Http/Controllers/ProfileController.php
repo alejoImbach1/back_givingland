@@ -43,12 +43,23 @@ class ProfileController extends Controller
 
         if ($request->has('social_media')) {
             $socialMedia = $request->social_media;
-            if (!$socialMedia['store']) {
+            if ($socialMedia['delete']) {
                 $profile->socialMedia()->detach($socialMedia['id']);
                 return response()->json(['message' => 'se eliminó la red social']);
             }
             $profile->socialMedia()->attach($socialMedia['id'], ['username' => $socialMedia['username']]);
             return response()->json(['message' => 'se creó la red social']);
+        }
+
+        if ($request->has('contact_information')) {
+            $contactInformation = $request->contact_information;
+            if ($contactInformation['delete']) {
+                $profile->contactInformation()->find($contactInformation['id'])->delete();
+                return response()->json(['message' => 'se eliminó la información de contacto']);
+            }
+            $profile->contactInformation()->updateOrCreate(['id' => $contactInformation['id']], $contactInformation['data']);
+            $word = $contactInformation['id'] ? 'actualizó' : 'creó';
+            return response()->json(['message' => 'se ' . $word . ' la red social']);
         }
         return response(null, 400);
     }
