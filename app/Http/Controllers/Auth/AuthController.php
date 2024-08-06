@@ -24,34 +24,9 @@ class AuthController extends Controller
         return response()->json(compact('auth_token'));
     }
 
-    public function register(Request $request)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ]+$/u',
-            'email' => 'required|email|unique:App\Models\User,email',
-            'password' => 'required|confirmed|regex:/^(?=.*\d).{6,14}$/',
-        ])->validate();
-
-        $validator['password'] = Hash::make($validator['password']);
-
-        $validator = array_merge(['username' => Utilily::generateUsername($validator['name'])], $validator);
-
-        $user = User::create($validator);
-
-        $profile = $user->profile()->create();
-
-        $profile->image()->create(['url' => 'users_profile_images/default.svg']);
-
-        $auth_token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json(compact('auth_token'));
-        // return response()->json($validator);
-    }
-
     public function googleLogin(Request $request)
     {
-        $user = User::where('email', $request->email)->get()->first();
+        $user = User::where('email', $request->email)->first();
         if (!$user) {
             $user = User::create([
                 'name' => $request->name,

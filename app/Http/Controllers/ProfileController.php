@@ -28,43 +28,54 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $profile = $request->user()->profile;
-        $imageToDelete = $profile->image;
-        if (basename($imageToDelete->url) != 'default.svg') {
-            Storage::delete('public/' . $imageToDelete->url);
+        if ($request->hasFile('image')) {
+            $profile->update(['google_avatar' => false]);
+            $imageToDelete = $profile->image;
+            if (basename($imageToDelete->url) != 'default.svg') {
+                Storage::delete('public/' . $imageToDelete->url);
+            }
+            $image = $request->file('image');
+            $path = 'users_profile_images/' . '/image_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public', $path);
+            $imageToDelete->update(['url' => $path]);
+            return response()->json(['message' => 'se actualizó la foto de perfil']);
         }
-        $profile->update(['google_avatar' => false]);
-        if (!$request->hasFile('image')) {
-            $profile->image->update(['url' => 'users_profile_images/default.svg']);
-            return response()->json(['message' => 'se eliminó la foto de perfil']);
-        }
-        $imageToDelete->delete();
 
-        $image = $request->file('image');
-        $path = 'users_profile_images/' . '/image_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
-        $image->storeAs('public', $path);
-        $profile->image()->create(['url' => $path]);
-        return response()->json(['message' => 'se actualizó la foto de perfil']);
+        if ($request->has('social_media')) {
+            $socialMedia = $request->social_media;
+            if (!$socialMedia['store']) {
+                $profile->socialMedia()->detach($socialMedia['id']);
+                return response()->json(['message' => 'se eliminó la red social']);
+            }
+            $profile->socialMedia()->attach($socialMedia['id'], ['username' => $socialMedia['username']]);
+            return response()->json(['message' => 'se creó la red social']);
+        }
+        return response(null, 400);
     }
 
     //para front laravel
     public function store(Request $request)
     {
         $profile = $request->user()->profile;
+        $profile->update(['google_avatar' => false]);
         $imageToDelete = $profile->image;
         if (basename($imageToDelete->url) != 'default.svg') {
             Storage::delete('public/' . $imageToDelete->url);
         }
-        $profile->update(['google_avatar' => false]);
-        if (!$request->hasFile('image')) {
-            $profile->image->update(['url' => 'users_profile_images/default.svg']);
-            return response()->json(['message' => 'se eliminó la foto de perfil']);
-        }
-        $imageToDelete->delete();
-
         $image = $request->file('image');
         $path = 'users_profile_images/' . '/image_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
         $image->storeAs('public', $path);
-        $profile->image()->create(['url' => $path]);
+        $imageToDelete->update(['url' => $path]);
         return response()->json(['message' => 'se actualizó la foto de perfil']);
+    }
+
+    public function deleteImage(Request $request)
+    {
+        $request->user()->profile->image->update(['url' => 'users_profile_images/default.svg']);
+        return response()->json(['message' => 'se eliminó la foto de perfil']);
+    }
+
+    public function storeSocialMedia(Request $request)
+    {
     }
 }

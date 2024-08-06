@@ -3,24 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\Utilily;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public static function middleware(): array
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return [
+            new Middleware('auth:sanctum', only: ['update','destroy']),
+        ];
     }
 
     /**
@@ -28,7 +24,27 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ]+$/u',
+            'email' => 'required|email|unique:App\Models\User,email',
+            'password' => 'required|confirmed|regex:/^(?=.*\d).{6,14}$/',
+        ])->validate();
+
+        $validator['password'] = Hash::make($validator['password']);
+
+        $validator = array_merge(['username' => Utilily::generateUsername($validator['name'])], $validator);
+
+        $user = User::create($validator);
+
+        $profile = $user->profile()->create();
+
+        $profile->image()->create(['url' => 'users_profile_images/default.svg']);
+
+        $auth_token = $user->createToken('auth_token')->plainTextToken;
+
+        $user = User::with('profile')->find($user->id);
+
+        return response()->json(compact('auth_token','user'));
     }
 
     /**
@@ -41,14 +57,6 @@ class UserController extends Controller
             return response(null,404);
         }
         return response()->json($user);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**

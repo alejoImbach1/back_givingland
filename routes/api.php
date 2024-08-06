@@ -27,6 +27,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::apiSingleton('profile',ProfileController::class)->creatable()->only('update','store');
 
+    Route::put('/profile/delete-image',[ProfileController::class,'deleteImage']);
+
     Route::post('toggle-favorite',function (Request $request){
         $request->user()->favorites()->toggle($request->post_id);
     });
