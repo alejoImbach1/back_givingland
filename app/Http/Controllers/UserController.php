@@ -15,7 +15,7 @@ class UserController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:sanctum', only: ['update','destroy']),
+            new Middleware('auth:sanctum', only: ['update', 'destroy']),
         ];
     }
 
@@ -24,17 +24,19 @@ class UserController extends Controller implements HasMiddleware
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ]+$/u',
-            'email' => 'required|email|unique:App\Models\User,email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|regex:/^(?=.*\d).{6,14}$/',
-        ])->validate();
+        ]);
 
-        $validator['password'] = Hash::make($validator['password']);
+        $request->merge([
+            'password' => (Hash::make($request->password)),
+            'username' => Utilily::generateUsername($request->name)
+        ]);
 
-        $validator = array_merge(['username' => Utilily::generateUsername($validator['name'])], $validator);
 
-        $user = User::create($validator);
+        $user = User::create($request->all());
 
         $profile = $user->profile()->create();
 
@@ -44,7 +46,9 @@ class UserController extends Controller implements HasMiddleware
 
         $user = User::with('profile')->find($user->id);
 
-        return response()->json(compact('auth_token','user'));
+        $message = 'se registró y se inició sesión';
+
+        return response()->json(compact('auth_token', 'user', 'message'));
     }
 
     /**
@@ -52,9 +56,9 @@ class UserController extends Controller implements HasMiddleware
      */
     public function show(string $userIndex)
     {
-        $user = User::included()->where('id',$userIndex)->orWhere('username',$userIndex)->first();
-        if(!$user){
-            return response(null,404);
+        $user = User::included()->where('id', $userIndex)->orWhere('username', $userIndex)->first();
+        if (!$user) {
+            return response()->json(['message' => 'usuario no encontrado'], 404);
         }
         return response()->json($user);
     }

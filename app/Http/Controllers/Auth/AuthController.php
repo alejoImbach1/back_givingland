@@ -16,12 +16,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         if (!Auth::attempt($request->only(['email', 'password']))) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'las credenciales no coinciden'], 401);
         }
         // $request->session()->regenerate();
         $user = auth()->user();
         $auth_token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(compact('auth_token'));
+        $message = "se inició sesión";
+        return response()->json(compact('auth_token','message'));
     }
 
     public function googleLogin(Request $request)
@@ -37,12 +38,13 @@ class AuthController extends Controller
             $profile->image()->create(['url' => $request->avatar]);
         }
         $auth_token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(compact('auth_token'));
+        $message = "se ingresó con google";
+        return response()->json(compact('auth_token','message'));
     }
 
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Se cerró sesión']);
+        return response()->json(['message' => 'se cerró sesión']);
     }
 }

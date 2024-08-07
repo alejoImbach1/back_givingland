@@ -19,12 +19,11 @@ class ForgotPasswordController extends Controller
 {
     public function sendEmail(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ]);
+
         $email = $request->email;
-        Validator::make(
-            compact('email'),
-            ['email' => 'required|email|exists:users,email'],
-            ['email.exists' => 'El correo electrónico es inválido']
-        )->validate();
 
         $tokenRepository = new DatabaseTokenRepository(DB::connection(), new BcryptHasher(), 'password_reset_tokens', 'bcrypt ');
 

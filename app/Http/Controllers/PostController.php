@@ -37,18 +37,24 @@ class PostController extends Controller implements HasMiddleware
     public function store(Request $request)
     {
         $request->validate([
-            'images' => 'required|array|max:5'
-        ]);
-
-        $validator = Validator::make($request->except('images'), [
+            'images' => 'required|array|max:5',
             'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
             'purpose' => 'required',
             'expected_item' => 'exclude_unless:purpose,intercambio|required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
             'description' => 'required|max:255|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
             'location_id' => 'required',
             'category_id' => 'required'
-        ])->validate();
-        $post = $request->user()->posts()->create($validator);
+        ]);
+
+        // $validator = Validator::make($request->except('images'), [
+        //     'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
+        //     'purpose' => 'required',
+        //     'expected_item' => 'exclude_unless:purpose,intercambio|required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
+        //     'description' => 'required|max:255|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
+        //     'location_id' => 'required',
+        //     'category_id' => 'required'
+        // ])->validate();
+        $post = $request->user()->posts()->create($request->except('images'));
         $images = $request->images;
         foreach ($images as $image) {
             $path = 'posts_images/' . $request->user()->username . '/image_' . Str::uuid() . '.' . $image->getClientOriginalExtension();
@@ -88,17 +94,18 @@ class PostController extends Controller implements HasMiddleware
             $request->merge(['expected_item' => null]);
         }
 
-        $validator = Validator::make($request->except('images'), [
+        $request->validate([
             'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
             'purpose' => 'required',
             'expected_item' => 'nullable|required_if:purpose,intercambio|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
             'description' => 'required|max:255|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
             'location_id' => 'required',
             'category_id' => 'required'
-        ])->validate();
+        ]);
 
         $post = $request->user()->posts()->find($id);
-        $post->update($validator);
+
+        $post->update($request->except('images','deleted_images_ids'));
 
         $deletedImagesIds = $request->deleted_images_ids;
         foreach ($deletedImagesIds as $deletedImagesId) {
@@ -127,15 +134,19 @@ class PostController extends Controller implements HasMiddleware
         if (!$post) {
             return response()->json(['error' => 'la publicación no se encuentra'], 404);
         };
+
         $images = $post->images;
+
         foreach ($images as $image) {
             Storage::delete('public/' . $image->url);
         }
+
         $post->delete();
+
         return response()->json(['message' => 'Se eliminó la publicación']);
     }
 
-    //para front laravel
+    //update para front laravel 
     public function storeNewImages(Request $request){
         $post = $request->user()->posts()->find($request->post_id);
         $images = $request->images;

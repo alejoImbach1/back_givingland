@@ -85,8 +85,4 @@ class ProfileController extends Controller
         $request->user()->profile->image->update(['url' => 'users_profile_images/default.svg']);
         return response()->json(['message' => 'se eliminó la foto de perfil']);
     }
-
-    public function storeSocialMedia(Request $request)
-    {
-    }
 }
