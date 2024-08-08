@@ -10,15 +10,8 @@ use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller implements HasMiddleware
+class UserController extends Controller
 {
-    public static function middleware(): array
-    {
-        return [
-            new Middleware('auth:sanctum', only: ['update', 'destroy']),
-        ];
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -27,14 +20,13 @@ class UserController extends Controller implements HasMiddleware
         $request->validate([
             'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ]+$/u',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|confirmed|regex:/^(?=.*\d).{6,14}$/',
+            'password' => 'required|regex:/^(?=.*\d).{6,14}$/',
         ]);
 
         $request->merge([
             'password' => (Hash::make($request->password)),
             'username' => Utilily::generateUsername($request->name)
         ]);
-
 
         $user = User::create($request->all());
 
@@ -66,16 +58,51 @@ class UserController extends Controller implements HasMiddleware
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        if (!$request->hasAny(['name','username','email','password'])) {
+            return response()->json(['message' => 'sin inputs'], 400);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ]+$/u',
+            'username' => 'sometimes|required|unique:users,username|regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+            'email' => 'sometimes|required|email|unique:users,email',
+            'password' => 'sometimes|required|regex:/^(?=.*\d).{6,14}$/',
+        ]);
+
+        $message = $request->has('name') ? 'se cambió el nombre completo' : ($request->has('username') ?  'se cambió el nombre de usuario'
+            :($request->has('email') ? 'se cambió el correo electrónico' : 'se cambió la contraseña'));
+
+        if ($request->has('current_password')) {
+            if (!Hash::check($request->current_password, $request->user()->password)) {
+                $message = 'la contraseña actual no es correcta';
+                return response()->json(compact('message'), 400);
+            }
+            $request->user()->update(['password' => Hash::make($request->password)]);
+            return response()->json(compact('message'));
+        }
+
+        $request->user()->update($request->all());
+
+        return response()->json(compact('message'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request)
     {
-        //
+        $request->validate([
+            'password' => 'required|confirmed'
+        ]);
+
+        if (!Hash::check($request->password, $request->user()->password)) {
+            $message = 'la contraseña actual no es correcta';
+            return response()->json(compact('message'), 400);
+        }
+        $message = 'se eliminó su cuenta';
+        $request->user()->delete();
+        return response()->json(compact('message'));
     }
 }

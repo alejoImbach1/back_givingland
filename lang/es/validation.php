@@ -268,7 +268,7 @@ return [
         'type'                     => 'tipo',
         'updated_at'               => 'actualizado el',
         'user'                     => 'usuario',
-        'username'                 => 'usuario',
+        'username'                 => 'nombre de usuario',
         'value'                    => 'valor',
         'year'                     => 'año',
     ],
