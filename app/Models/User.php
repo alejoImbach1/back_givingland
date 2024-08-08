@@ -58,6 +58,8 @@ class User extends Authenticatable
         'posts.location',
         'posts.category',
         'favorites',
+        'favorites.images',
+        'favorites.location'
     ]; //las posibles Querys que se pueden realizar
 
     //relaciones
@@ -74,7 +76,7 @@ class User extends Authenticatable
 
     public function favorites(): BelongsToMany
     {
-        return $this->belongsToMany(Post::class,'favorites');
+        return $this->belongsToMany(Post::class,'favorites')->withPivot('created_at');
     }
 
     public function notifications(): HasMany

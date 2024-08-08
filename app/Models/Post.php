@@ -52,7 +52,7 @@ class Post extends Model
 
     public function favorites(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'favorites');
+        return $this->belongsToMany(User::class, 'favorites')->withPivot('created_at');
     }
 
     public function images(): MorphMany

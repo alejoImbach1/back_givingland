@@ -30,8 +30,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('/profile/delete-image',[ProfileController::class,'deleteImage']);
 
-    Route::post('toggle-favorite',function (Request $request){
-        $request->user()->favorites()->toggle($request->post_id);
+    Route::post('/toggle-favorite',function (Request $request){
+        $request->user()->favorites()->toggle($request->post_id,['created_at' => now()]);
+    });
+
+    Route::get('/favorites',function (Request $request){
+        return response()->json($request->user()->favorites()->with('images','location')->orderByPivot('created_at','desc')->get());
     });
 });
 
