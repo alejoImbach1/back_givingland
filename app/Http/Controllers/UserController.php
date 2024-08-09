@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -60,7 +61,7 @@ class UserController extends Controller
      */
     public function update(Request $request)
     {
-        if (!$request->hasAny(['name','username','email','password'])) {
+        if (!$request->hasAny(['name', 'username', 'email', 'password'])) {
             return response()->json(['message' => 'sin inputs'], 400);
         }
 
@@ -72,7 +73,7 @@ class UserController extends Controller
         ]);
 
         $message = $request->has('name') ? 'se cambió el nombre completo' : ($request->has('username') ?  'se cambió el nombre de usuario'
-            :($request->has('email') ? 'se cambió el correo electrónico' : 'se cambió la contraseña'));
+            : ($request->has('email') ? 'se cambió el correo electrónico' : 'se cambió la contraseña'));
 
         if ($request->has('current_password')) {
             if (!Hash::check($request->current_password, $request->user()->password)) {
@@ -101,8 +102,15 @@ class UserController extends Controller
             $message = 'la contraseña actual no es correcta';
             return response()->json(compact('message'), 400);
         }
+        $user = $request->user();
         $message = 'se eliminó su cuenta';
-        $request->user()->delete();
+        $username = $user->username;
+        $profile_image = basename($user->profile->image->url);
+        $user->delete();
+        Storage::deleteDirectory("public/posts_images/{$username}");
+        if ($profile_image !== 'default.svg') {
+            Storage::delete("public/users_profile_images/{$profile_image}");
+        }
         return response()->json(compact('message'));
     }
 }

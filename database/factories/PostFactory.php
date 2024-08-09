@@ -38,7 +38,7 @@ class PostFactory extends Factory
             'name' => fake()->words(4,true),
             'purpose' => fake()->randomElement(['donación','intercambio']),
             'description' => fake()->text(),
-            'user_id' => User::all()->random()->id,
+            'user_id' => User::whereNotIn('id',[1,2])->get()->random()->id,
             'category_id' => Category::all()->random()->id,
             'location_id' => Location::all()->random()->id,
         ];
