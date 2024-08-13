@@ -90,24 +90,24 @@ class PostController extends Controller implements HasMiddleware
             return response()->json(['message' => 'la publicación no se encuentra'],404);
         }
 
-        if($request->purpose == 'donación'){
-            $request->merge(['expected_item' => null]);
-        }
+        // if($request->purpose == 'donación'){
+        //     $request->merge(['expected_item' => null]);
+        // }
 
         $request->validate([
-            'name' => 'required|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
-            'purpose' => 'required',
-            'expected_item' => 'nullable|required_if:purpose,intercambio|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
-            'description' => 'required|max:255|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
-            'location_id' => 'required',
-            'category_id' => 'required'
+            'name' => 'sometimes|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
+            'purpose' => 'sometimes',
+            'expected_item' => 'required_if:purpose,intercambio|max:100|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
+            'description' => 'sometimes|max:255|regex:/^[\p{L}\p{N}\sñÑáéíóúÁÉÍÓÚüÜ.,:;-_()]+$/u',
+            'location_id' => 'sometimes',
+            'category_id' => 'sometimes'
         ]);
 
         $post = $request->user()->posts()->find($id);
 
         $post->update($request->except('images','deleted_images_ids'));
 
-        $deletedImagesIds = $request->deleted_images_ids;
+        $deletedImagesIds = $request->has('deleted_images_ids') ? $request->deleted_images_ids :  [];
         foreach ($deletedImagesIds as $deletedImagesId) {
             $imageToDelete = $post->images()->find($deletedImagesId);
             Storage::delete('public/' . $imageToDelete->url);
